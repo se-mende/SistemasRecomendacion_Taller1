@@ -1,2 +1,5 @@
 jupyterlab
 notebook
+numpy
+scikit-surprise
+pandas
