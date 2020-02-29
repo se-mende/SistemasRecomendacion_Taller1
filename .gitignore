@@ -1,6 +1,7 @@
 Data/*.tsv
 
 data/*.tsv
+data/*.csv
 
 .vscode/
 
