@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %} 
+<h2>Ingresa el nombre o id del usuario</h2> 
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'search_results' %}" method="get">
+  <input name="query" type="text" placeholder="Buscar...">
+  <button type="submit">Buscar</button>
+</form>
+
+{% endblock %}

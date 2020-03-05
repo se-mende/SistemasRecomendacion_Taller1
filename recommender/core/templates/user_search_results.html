@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<a href="{% url 'index' %}">Atras</a>
+
+<h2>Resultados</h2> 
+
+{% for user in object_list %}
+  <a href="">{{ user.name }}</a>
+{% endfor %}
+
+{% endblock %}

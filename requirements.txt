@@ -4,4 +4,4 @@ numpy
 scikit-surprise
 pandas
 matplotlib
-Django==3.0.3
+Django==3.0.4
