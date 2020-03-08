@@ -36,8 +36,8 @@ class ArtistRating(models.Model):
     artist_name = models.CharField('Artist name', max_length=100)
     activity_count = models.IntegerField('Activity count')
     ratings = models.FloatField()
-    similarity_technique = models.CharField(choices=SimilarityTechnique.choices)
-    model_type = models.CharField(choices=RecommenderModelType.choices)
+    similarity_technique = models.CharField(max_length=50, choices=SimilarityTechnique.choices)
+    model_type = models.CharField(max_length=50, choices=RecommenderModelType.choices)
 
 
 class Neighbour(models.Model):
