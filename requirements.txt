@@ -2,6 +2,7 @@ jupyterlab
 notebook
 numpy
 scikit-surprise
+scikit-learn
 pandas
 matplotlib
 Django==3.0.4
