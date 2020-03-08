@@ -35,7 +35,7 @@ class ArtistRating(models.Model):
     user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='artist_ratings')
     artist_name = models.CharField('Artist name', max_length=100)
     activity_count = models.IntegerField('Activity count')
-    ratings = models.FloatField()
+    rating = models.FloatField()
     similarity_technique = models.CharField(max_length=50, choices=SimilarityTechnique.choices)
     model_type = models.CharField(max_length=50, choices=RecommenderModelType.choices)
 
