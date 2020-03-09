@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="row">
+  <div class="mt-5">
+    <a href="{% url 'index' %}" class="btn btn-primary mr-4">Atras</a>
+    <h2 >Vecinos de "{{ artist_name }}" usando {{ similarity }}</h2> 
+  </div>
+</div>
+
+<div class="row">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Artist Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for neighbor in neighbors %}
+      <tr>
+        <th scope="row">{{ forloop.counter0 }}</th>
+        <td>{{ neighbor }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
