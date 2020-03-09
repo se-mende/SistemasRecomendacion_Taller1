@@ -6,31 +6,110 @@
 <div class="row">
   <div class="mt-5">
     <a href="{% url 'index' %}" class="btn btn-primary mr-4">Atras</a>
-    <h2 >Usuarios</h2> 
+    <h2 >Recomendaciones</h2> 
   </div>
 </div>
 
-<div class="row">
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Artist Name</th>
-        <th scope="col">Estimation</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for artist in pearson_predictions %}
-      <tr>
-        <th scope="row">{{ forloop.counter0 }}</th>
-        <td>{{ artist.artist }}</td>
-        <td>{{ artist.estimation }}</td>
-        <td>
-          <a class="btn btn-primary" href="{% url 'user_recommendations' user.pk %}?model_type=User user" >See neighbours</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="pearson-tab" data-toggle="tab" href="#pearson" role="tab" aria-controls="pearson" aria-selected="true">Pearson</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="cosine-tab" data-toggle="tab" href="#cosine" role="tab" aria-controls="cosine" aria-selected="false">Cosine</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="jaccard-tab" data-toggle="tab" href="#jaccard" role="tab" aria-controls="jaccard" aria-selected="false">jaccard</a>
+  </li>
+</ul>
+<div class="row">  
+  <div class="tab-content" id="recommendations">
+    <div class="tab-pane fade show active" id="pearson" role="tabpanel" aria-labelledby="pearson-tab">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Artist Name</th>
+            <th scope="col">Estimation</th>
+            {% if show_action %}
+            <th scope="col">Action</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for artist in pearson_predictions %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ artist.artist }}</td>
+            <td>{{ artist.estimation }}</td>
+            {% if show_action %}
+            <td>
+              <a class="btn btn-primary" href="{% url 'user_recommendations' user.pk %}?model_type=User user" >See neighbours</a>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane fade" id="cosine" role="tabpanel" aria-labelledby="cosine-tab">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Artist Name</th>
+            <th scope="col">Estimation</th>
+            {% if show_action %}
+            <th scope="col">Action</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for artist in cosine_predictions %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ artist.artist }}</td>
+            <td>{{ artist.estimation }}</td>
+            {% if show_action %}
+            <td>
+              <a class="btn btn-primary" href="{% url 'user_recommendations' user.pk %}?model_type=User user" >See neighbours</a>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane fade" id="jaccard" role="tabpanel" aria-labelledby="jaccard-tab">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Artist Name</th>
+            <th scope="col">Estimation</th>
+            {% if show_action %}
+            <th scope="col">Action</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for artist in cosine_predictions %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ artist.artist }}</td>
+            <td>{{ artist.estimation }}</td>
+            {% if show_action %}
+            <td>
+              <a class="btn btn-primary" href="{% url 'user_recommendations' user.pk %}?model_type=User user" >See neighbours</a>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  
 
 {% endblock %}
