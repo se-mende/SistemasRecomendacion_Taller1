@@ -21,6 +21,7 @@ def user_recommendations(request, user_id):
 
     context = {
         'model_type': model_type,
+        'show_action': model_type == ArtistRating.RecommenderModelType.ITEM_ITEM,
         'user': user,
         'song_activities': [],
         'jaccard_predictions': []
