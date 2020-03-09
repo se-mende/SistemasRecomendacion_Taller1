@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path('', views.HomeView.as_view(), name='index'),
-    path('results/', views.UserSearchResultsListView.as_view(), name='search_results')
+    path('recomendations/<user_id>/', views.user_recommendations, name='user_recommendations')
 ]

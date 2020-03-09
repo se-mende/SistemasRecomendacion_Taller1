@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="row">
+  <div class="mt-5">
+    <a href="{% url 'index' %}" class="btn btn-primary mr-4">Atras</a>
+    <h2 >Usuarios</h2> 
+  </div>
+</div>
+
+<div class="row">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Artist Name</th>
+        <th scope="col">Estimation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for artist in pearson_predictions %}
+      <tr>
+        <th scope="row">{{ forloop.counter0 }}</th>
+        <td>{{ artist.artist }}</td>
+        <td>{{ artist.estimation }}</td>
+        <td>
+          <a class="btn btn-primary" href="{% url 'user_recommendations' user.pk %}?model_type=User user" >See neighbours</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

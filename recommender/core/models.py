@@ -11,7 +11,7 @@ class UserProfile(models.Model):
     gender = models.CharField('Gender', max_length=1, null=True, blank=True, choices=Gender.choices)
     age = models.PositiveIntegerField(null=True, blank=True)
     country = models.CharField('Country', max_length=50, null=True, blank=True)
-    registered_at = models.DateField()
+    registered_at = models.DateField(null=True)
 
 
 class SongActivity(models.Model):
@@ -24,9 +24,9 @@ class SongActivity(models.Model):
 class ArtistRating(models.Model):
 
     class SimilarityTechnique(models.TextChoices):
-        JACCARD = 'Jaccard'
-        COSENO = 'Coseno'
-        PEARSON = 'Pearson'
+        JACCARD = 'jaccard'
+        COSINE = 'cosine'
+        PEARSON = 'pearson'
 
     class RecommenderModelType(models.TextChoices):
         USER_USER = 'User user'

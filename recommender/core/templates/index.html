@@ -3,18 +3,46 @@
 {% block content %}
 
 <div class="row">
-  <h2>Ingresa el nombre o id del usuario</h2> 
+  <h2 class="mt-5">Usuarios</h2> 
 </div>
 
 <div class="row">
-  {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">id</th>
+        <th scope="col">Gender</th>
+        <th scope="col">Age</th>
+        <th scope="col">Country</th>
+        <th scope="col">Registered</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in object_list %}
+      <tr>
+        <th scope="row">{{user.id}}</th>
+        <td>{{user.gender}}</td>
+        <td>{{user.age}}</td>
+        <td>{{user.country}}</td>
+        <td>{{user.registered_at}}</td>
+        <td>
+          <a class="btn btn-primary" href="{% url 'user_recommendations' user.pk %}?model_type=User user" >User user</a>
+          <a class="btn btn-primary" href="{% url 'user_recommendations' user.pk %}?model_type=Item item" >Item Item</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-  <form class="form-inline" action="{% url 'search_results' %}" method="get">
+  <!-- {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+  <form class="form-inline" action="" method="get">
     <div class="form-group">
       <input class="form-control" name="query" type="text" placeholder="Buscar...">
     </div>
     <button class="btn btn-primary ml-2" type="submit">Buscar</button>
-  </form>
+  </form> -->
 </div>
 
 {% endblock %}

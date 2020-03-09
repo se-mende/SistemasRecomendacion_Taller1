@@ -4,16 +4,9 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from .forms import SearchUserForm
 from django.urls import reverse
-from .models import UserProfile
-
-# def index(request):
-
-#     context = {
-#         'title': 'Mensaje de contexto'
-#     }
-
-#     return render(request, 'index.html', context=context)
-
+from .models import UserProfile, ArtistRating
+from django.shortcuts import get_object_or_404
+import core.utils as utils
 
 class HomeView(ListView):
     model = UserProfile
@@ -21,23 +14,45 @@ class HomeView(ListView):
     paginate_by = 30
 
 
-class UserRecommendationsDetailView(DetailView):
+def user_recommendations(request, user_id):
 
-    model = UserProfile
+    model_type = request.GET.get('model_type', ArtistRating.RecommenderModelType.ITEM_ITEM)
+    user = get_object_or_404(UserProfile, pk=user_id)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['song_activities'] = self.object.song_activities.all()
-        return context
+    context = {
+        'model_type': model_type,
+        'user': user,
+        'song_activities': [],
+        'jaccard_predictions': []
+    }
 
-
-class SearchUserFormView(FormView):
-    template_name = 'index.html'
-    form_class = SearchUserForm
+    pearsons_predictions = utils.findPredictions(user_id, ArtistRating.SimilarityTechnique.PEARSON, model_type)
+    if pearsons_predictions is not None:
+        context['pearson_predictions'] = pearsons_predictions
     
-    def get_success_url(self):
-        query = self.request.GET.get('query')
-        return '%s?query=%s' %  (reverse('search_results'), query)
+    cosine_predictions = utils.findPredictions(user_id, ArtistRating.SimilarityTechnique.COSINE, model_type)
+    if cosine_predictions is not None:
+        context['cosine_predictions'] = cosine_predictions
 
-class UserSearchResultsListView(ListView):
-    template_name = 'user_search_results.html'
+    return render(request, 'user_recommendations.html', context=context)
+
+# class UserRecommendationsDetailView(DetailView):
+
+#     model = UserProfile
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['song_activities'] = self.object.song_activities.all()
+#         return context
+
+
+# class SearchUserFormView(FormView):
+#     template_name = 'index.html'
+#     form_class = SearchUserForm
+    
+#     def get_success_url(self):
+#         query = self.request.GET.get('query')
+#         return '%s?query=%s' %  (reverse('search_results'), query)
+
+# class UserSearchResultsListView(ListView):
+#     template_name = 'user_search_results.html'
