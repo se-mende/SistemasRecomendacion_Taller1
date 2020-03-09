@@ -9,9 +9,14 @@ from django.shortcuts import get_object_or_404
 import core.utils as utils
 
 class HomeView(ListView):
-    model = UserProfile
     template_name = 'index.html'
-    paginate_by = 30
+    paginate_by = 40
+
+    def get_queryset(self):
+        user_id = self.request.GET.get('user_id')
+        if user_id:
+            return UserProfile.objects.filter(id__contains=user_id)
+        return UserProfile.objects.all()
 
 
 def user_recommendations(request, user_id):
