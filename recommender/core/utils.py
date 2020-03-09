@@ -22,8 +22,10 @@ pearson_ii_pickle_predictions = pickle.load( open( pearson_ii_pickle_file_path, 
 cosine_uu_pickle_predictions = pickle.load( open( cosine_uu_pickle_file_path, "rb" ) )
 pearson_uu_pickle_predictions = pickle.load( open( pearson_uu_pickle_file_path, "rb" ) )
 
-algoCosine = None
-algoPearson = None
+algoCosine_useruser = None
+algoPearson_useruser = None
+algoCosine_itemitem = None
+algoPearson_itemitem = None
 
 def findPredictions(user_id, similarity, model_type):
 
@@ -49,7 +51,7 @@ def findPredictions(user_id, similarity, model_type):
     
     return json.loads(df_predictions.to_json(orient='records'))
 
-def findItemItemNeighbors(artist_name, similarity):
+def getTrainSet():
     ratings=pd.read_csv('../Data/preprocessed_user_item_rating.csv', sep = ',', header=0, names = [ 'userid', 'artist-name', 'rating' ] )
     ratings = ratings.loc[:,['userid', 'artist-name','rating']]
 
@@ -58,33 +60,52 @@ def findItemItemNeighbors(artist_name, similarity):
     surprise_dataset = Dataset.load_from_df( ratings[ [ 'userid', 'artist-name', 'rating' ] ], reader )
     trainset, testset=  train_test_split(surprise_dataset, test_size=.2)
 
+    return trainset
+
+def findNeighbors(active, similarity, model_type):
+    trainset = getTrainSet()
+
     sim_options = {}
     algo = None
-    global algoCosine
-    global algoPearson
-    if similarity == ArtistRating.SimilarityTechnique.COSINE:
+    global algoCosine_itemitem
+    global algoCosine_useruser
+    global algoPearson_itemitem
+    global algoPearson_useruser
+    if similarity == ArtistRating.SimilarityTechnique.COSINE and model_type == ArtistRating.RecommenderModelType.ITEM_ITEM:
         sim_options = {'name': 'cosine','user_based': False}
-        if algoCosine is None:
-            algoCosine = KNNBasic(k=30, min_k=5, sim_options=sim_options)
-            algoCosine.fit(trainset)
-            algo = algoCosine
-        else:
-            algo = algoCosine
-    elif similarity == ArtistRating.SimilarityTechnique.PEARSON:
+        if algoCosine_itemitem is None:
+            algoCosine_itemitem = KNNBasic(k=30, min_k=5, sim_options=sim_options)
+            algoCosine_itemitem.fit(trainset)
+        algo = algoCosine_itemitem
+    elif similarity == ArtistRating.SimilarityTechnique.PEARSON and model_type == ArtistRating.RecommenderModelType.ITEM_ITEM:
         sim_options = {'name': 'pearson_baseline','user_based': False,'shrinkage': 0}
-        if algoPearson is None:
-            algoPearson = KNNBasic(sim_options=sim_options)
-            algoPearson.fit(trainset)
-            algo = algoPearson
-        else:
-            algo = algoPearson
+        if algoPearson_itemitem is None:
+            algoPearson_itemitem = KNNBasic(sim_options=sim_options)
+            algoPearson_itemitem.fit(trainset)
+        algo = algoPearson_itemitem
+    elif similarity == ArtistRating.SimilarityTechnique.COSINE and model_type == ArtistRating.RecommenderModelType.USER_USER:
+        sim_options = {'name': 'cosine','user_based': True}
+        if algoCosine_useruser is None:
+            algoCosine_useruser = KNNBasic(k=30, min_k=5, sim_options=sim_options)
+            algoCosine_useruser.fit(trainset)
+        algo = algoCosine_useruser
+    elif similarity == ArtistRating.SimilarityTechnique.PEARSON and model_type == ArtistRating.RecommenderModelType.USER_USER:
+        sim_options = {'name': 'pearson_baseline','user_based': True,'shrinkage': 0}
+        if algoPearson_useruser is None:
+            algoPearson_useruser = KNNBasic(sim_options=sim_options)
+            algoPearson_useruser.fit(trainset)
+        algo = algoPearson_useruser
     
-    item_inner_id = algo.trainset.to_inner_iid(artist_name)
-    item_neighbors = algo.get_neighbors(item_inner_id, k=5)
-
-    neighbors = (algo.trainset.to_raw_iid(rid) for rid in item_neighbors)
-
     neighborsList = []
+    if model_type == ArtistRating.RecommenderModelType.ITEM_ITEM:
+        item_inner_id = algo.trainset.to_inner_iid(active)
+        item_neighbors = algo.get_neighbors(item_inner_id, k=5)
+        neighbors = (algo.trainset.to_raw_iid(rid) for rid in item_neighbors)
+    elif model_type == ArtistRating.RecommenderModelType.USER_USER:
+        user_inner_id = algo.trainset.to_inner_uid(active)
+        user_neighbors = algo.get_neighbors(user_inner_id, k=5)
+        neighbors = (algo.trainset.to_raw_uid(rid) for rid in user_neighbors)
     for neighbor in neighbors:
         neighborsList.append(neighbor)
+    
     return neighborsList

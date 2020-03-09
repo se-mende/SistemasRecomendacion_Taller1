@@ -6,7 +6,7 @@
 <div class="row">
   <div class="mt-5">
     <a href="{% url 'index' %}" class="btn btn-primary mr-4">Atras</a>
-    <h2 >Recomendaciones</h2> 
+    <h1>{{ user.id }}</h1>
   </div>
 </div>
 
@@ -24,6 +24,7 @@
 <div class="row">  
   <div class="tab-content" id="recommendations">
     <div class="tab-pane fade show active" id="pearson" role="tabpanel" aria-labelledby="pearson-tab">
+      <h2 >Recomendaciones</h2> 
       <table class="table table-striped">
         <thead>
           <tr>
@@ -50,8 +51,28 @@
           {% endfor %}
         </tbody>
       </table>
+      {% if not show_action %}
+      <h2 >Vecinos</h2>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">User</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for neighbor in pearson_neighbors %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ neighbor }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
     </div>
     <div class="tab-pane fade" id="cosine" role="tabpanel" aria-labelledby="cosine-tab">
+      <h2 >Recomendaciones</h2> 
       <table class="table table-striped">
         <thead>
           <tr>
@@ -78,6 +99,25 @@
           {% endfor %}
         </tbody>
       </table>
+      {% if not show_action %}
+      <h2 >Vecinos</h2>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">User</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for neighbor in cosine_neighbors %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ neighbor }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
     </div>
     <div class="tab-pane fade" id="jaccard" role="tabpanel" aria-labelledby="jaccard-tab">
       <table class="table table-striped">

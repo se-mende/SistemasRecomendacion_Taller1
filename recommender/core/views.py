@@ -19,12 +19,20 @@ def user_recommendations(request, user_id):
     model_type = request.GET.get('model_type', ArtistRating.RecommenderModelType.ITEM_ITEM)
     user = get_object_or_404(UserProfile, pk=user_id)
 
+    cosine_neighbors = None
+    pearson_neighbors = None
+    if model_type == ArtistRating.RecommenderModelType.USER_USER:
+        cosine_neighbors = utils.findNeighbors(user.id, ArtistRating.SimilarityTechnique.COSINE,ArtistRating.RecommenderModelType.USER_USER)
+        pearson_neighbors = utils.findNeighbors(user.id, ArtistRating.SimilarityTechnique.PEARSON,ArtistRating.RecommenderModelType.USER_USER)
+
     context = {
         'model_type': model_type,
         'show_action': model_type == ArtistRating.RecommenderModelType.ITEM_ITEM,
         'user': user,
         'song_activities': [],
-        'jaccard_predictions': []
+        'jaccard_predictions': [],
+        'cosine_neighbors': cosine_neighbors,
+        'pearson_neighbors': pearson_neighbors
     }
 
     pearsons_predictions = utils.findPredictions(user_id, ArtistRating.SimilarityTechnique.PEARSON, model_type)
@@ -35,20 +43,19 @@ def user_recommendations(request, user_id):
     if cosine_predictions is not None:
         context['cosine_predictions'] = cosine_predictions
 
+    print(context)
     return render(request, 'user_recommendations.html', context=context)
 
 def item_neighbors(request, artist_name):
 
     similarity = request.GET.get('similarity', ArtistRating.SimilarityTechnique.PEARSON)
-    neighbors = utils.findItemItemNeighbors(artist_name,similarity)
+    neighbors = utils.findNeighbors(artist_name,similarity, ArtistRating.RecommenderModelType.ITEM_ITEM)
 
     context = {
         'artist_name': artist_name,
         'similarity': similarity,
         'neighbors': neighbors
     }
-
-    print(context)
     return render(request, 'item_neighbors.html', context=context)
 
 # class UserRecommendationsDetailView(DetailView):
