@@ -36,6 +36,20 @@ def user_recommendations(request, user_id):
 
     return render(request, 'user_recommendations.html', context=context)
 
+def item_neighbors(request, artist_name):
+
+    similarity = request.GET.get('similarity', ArtistRating.SimilarityTechnique.PEARSON)
+    neighbors = utils.findItemItemNeighbors(artist_name,similarity)
+
+    context = {
+        'artist_name': artist_name,
+        'similarity': similarity,
+        'neighbors': neighbors
+    }
+
+    print(context)
+    return render(request, 'item_neighbors.html', context=context)
+
 # class UserRecommendationsDetailView(DetailView):
 
 #     model = UserProfile

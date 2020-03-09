@@ -17,6 +17,9 @@
         <th scope="col">#</th>
         <th scope="col">Artist Name</th>
         <th scope="col">Estimation</th>
+        {% if model_type == 'Item item' %}
+        <th scope="col">Action</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -25,9 +28,11 @@
         <th scope="row">{{ forloop.counter0 }}</th>
         <td>{{ artist.artist }}</td>
         <td>{{ artist.estimation }}</td>
+        {% if model_type == 'Item item' %}
         <td>
-          <a class="btn btn-primary" href="{% url 'user_recommendations' user.pk %}?model_type=User user" >See neighbours</a>
+          <a class="btn btn-primary" href="{% url 'item_neighbors' artist.artist %}?similarity=pearson" >See neighbours</a>
         </td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>
