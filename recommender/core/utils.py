@@ -86,7 +86,7 @@ def findNeighbors(active, similarity, model_type):
     elif similarity == ArtistRating.SimilarityTechnique.COSINE and model_type == ArtistRating.RecommenderModelType.USER_USER:
         sim_options = {'name': 'cosine','user_based': True}
         if algoCosine_useruser is None:
-            algoCosine_useruser = KNNBasic(k=30, min_k=5, sim_options=sim_options)
+            algoCosine_useruser = KNNBasic(k=50, min_k=10, sim_options=sim_options)
             algoCosine_useruser.fit(trainset)
         algo = algoCosine_useruser
     elif similarity == ArtistRating.SimilarityTechnique.PEARSON and model_type == ArtistRating.RecommenderModelType.USER_USER:
