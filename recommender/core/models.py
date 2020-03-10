@@ -25,7 +25,9 @@ class ArtistActivity(models.Model):
     user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='artists_activities')
     artist_name = models.CharField('Artist name', max_length=120)
     activity_count = models.PositiveIntegerField()
-
+    
+    def __str__(self):
+        return 'User: %s | Artist name: %s' % (self.user_profile.pk, self.artist_name)
 
 class ArtistRating(models.Model):
 
