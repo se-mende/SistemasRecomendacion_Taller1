@@ -21,6 +21,12 @@ class SongActivity(models.Model):
     timestamp = models.DateTimeField()
 
 
+class ArtistActivity(models.Model):
+    user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='artists_activities')
+    artist_name = models.CharField('Artist name', max_length=120)
+    activity_count = models.PositiveIntegerField()
+
+
 class ArtistRating(models.Model):
 
     class SimilarityTechnique(models.TextChoices):

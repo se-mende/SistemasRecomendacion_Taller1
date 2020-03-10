@@ -10,7 +10,7 @@
   </div>
 </div>
 
-<ul class="nav nav-tabs" id="myTab" role="tablist">
+<ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
   <li class="nav-item">
     <a class="nav-link active" id="pearson-tab" data-toggle="tab" href="#pearson" role="tab" aria-controls="pearson" aria-selected="true">Pearson</a>
   </li>
@@ -22,7 +22,7 @@
   </li>
 </ul>
 <div class="row">  
-  <div class="tab-content" id="recommendations">
+  <div class="tab-content mt-4" id="recommendations">
     <div class="tab-pane fade show active" id="pearson" role="tabpanel" aria-labelledby="pearson-tab">
       <h2 >Recomendaciones</h2> 
       <table class="table table-striped">
@@ -148,8 +148,33 @@
       </table>
     </div>
   </div>
+</div>
+
+<hr >
+
+<div class="row">
+  <h2 >Actividad</h2> 
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Artista</th>
+        <th scope="col"># de veces oído</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for artist in artist_activities %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td>{{ artist.artist_name }}</td>
+        <td>{{ artist.activity_count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 
-  
+
 
 {% endblock %}
