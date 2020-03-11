@@ -8,6 +8,7 @@ from surprise import KNNBasic
 from .models import ArtistRating
 import numpy as np
 import json
+import threading
 
 module_dir = os.path.dirname(__file__)  # get current directory
 cosine_ii_pickle_file_path = os.path.join(module_dir, './predictions/predictions_ii_cosine.p')
@@ -51,20 +52,24 @@ def findPredictions(user_id, similarity, model_type):
     
     return json.loads(df_predictions.to_json(orient='records'))
 
-def getTrainSet():
-    ratings=pd.read_csv('../Data/preprocessed_user_item_rating.csv', sep = ',', header=0, names = [ 'userid', 'artist-name', 'rating' ] )
+# Este puede cambiar por base de datos
+def getRatings():
+    ratings = pd.read_csv('../Data/preprocessed_user_item_rating.csv', sep = ',', header=0, names = [ 'userid', 'artist-name', 'rating' ] )
     ratings = ratings.loc[:,['userid', 'artist-name','rating']]
+
+    return ratings
+
+def getTrainSet():
+    ratings = getRatings()
 
     reader = Reader( rating_scale = ( 0, 5 ) )
     #Se crea el dataset a partir del dataframe
     surprise_dataset = Dataset.load_from_df( ratings[ [ 'userid', 'artist-name', 'rating' ] ], reader )
     trainset, testset=  train_test_split(surprise_dataset, test_size=.2)
 
-    return trainset
+    return trainset, testset
 
-def findNeighbors(active, similarity, model_type):
-    trainset = getTrainSet()
-
+def getAlgorithm(trainset, similarity, model_type, force):
     sim_options = {}
     algo = None
     global algoCosine_itemitem
@@ -73,28 +78,34 @@ def findNeighbors(active, similarity, model_type):
     global algoPearson_useruser
     if similarity == ArtistRating.SimilarityTechnique.COSINE and model_type == ArtistRating.RecommenderModelType.ITEM_ITEM:
         sim_options = {'name': 'cosine','user_based': False}
-        if algoCosine_itemitem is None:
+        if algoCosine_itemitem is None or force:
             algoCosine_itemitem = KNNBasic(k=30, min_k=5, sim_options=sim_options)
             algoCosine_itemitem.fit(trainset)
         algo = algoCosine_itemitem
     elif similarity == ArtistRating.SimilarityTechnique.PEARSON and model_type == ArtistRating.RecommenderModelType.ITEM_ITEM:
         sim_options = {'name': 'pearson_baseline','user_based': False,'shrinkage': 0}
-        if algoPearson_itemitem is None:
+        if algoPearson_itemitem is None or force:
             algoPearson_itemitem = KNNBasic(sim_options=sim_options)
             algoPearson_itemitem.fit(trainset)
         algo = algoPearson_itemitem
     elif similarity == ArtistRating.SimilarityTechnique.COSINE and model_type == ArtistRating.RecommenderModelType.USER_USER:
         sim_options = {'name': 'cosine','user_based': True}
-        if algoCosine_useruser is None:
+        if algoCosine_useruser is None or force:
             algoCosine_useruser = KNNBasic(k=50, min_k=10, sim_options=sim_options)
             algoCosine_useruser.fit(trainset)
         algo = algoCosine_useruser
     elif similarity == ArtistRating.SimilarityTechnique.PEARSON and model_type == ArtistRating.RecommenderModelType.USER_USER:
         sim_options = {'name': 'pearson_baseline','user_based': True,'shrinkage': 0}
-        if algoPearson_useruser is None:
+        if algoPearson_useruser is None or force:
             algoPearson_useruser = KNNBasic(sim_options=sim_options)
             algoPearson_useruser.fit(trainset)
         algo = algoPearson_useruser
+    
+    return algo
+
+def findNeighbors(active, similarity, model_type):
+    trainset, testset = getTrainSet()
+    algo = getAlgorithm(trainset, similarity, model_type, False)
     
     neighborsList = []
     if model_type == ArtistRating.RecommenderModelType.ITEM_ITEM:
@@ -105,7 +116,27 @@ def findNeighbors(active, similarity, model_type):
         user_inner_id = algo.trainset.to_inner_uid(active)
         user_neighbors = algo.get_neighbors(user_inner_id, k=5)
         neighbors = (algo.trainset.to_raw_uid(rid) for rid in user_neighbors)
+    
     for neighbor in neighbors:
         neighborsList.append(neighbor)
     
     return neighborsList
+
+def recalculate():
+    print('recalculating everything')
+    trainset, testset = getTrainSet()
+
+    thread_uu_cosine = threading.Thread(target=savePickle,args=(trainset, testset, ArtistRating.SimilarityTechnique.COSINE, ArtistRating.RecommenderModelType.USER_USER, cosine_uu_pickle_file_path))
+    thread_ii_cosine = threading.Thread(target=savePickle,args=(trainset, testset, ArtistRating.SimilarityTechnique.COSINE, ArtistRating.RecommenderModelType.ITEM_ITEM, cosine_ii_pickle_file_path))
+    thread_uu_pearson = threading.Thread(target=savePickle,args=(trainset, testset, ArtistRating.SimilarityTechnique.PEARSON, ArtistRating.RecommenderModelType.USER_USER, pearson_uu_pickle_file_path))
+    thread_ii_pearson = threading.Thread(target=savePickle,args=(trainset, testset, ArtistRating.SimilarityTechnique.PEARSON, ArtistRating.RecommenderModelType.ITEM_ITEM, pearson_ii_pickle_file_path))
+
+    thread_uu_cosine.start()
+    thread_ii_cosine.start()
+    thread_uu_pearson.start()
+    thread_ii_pearson.start()
+
+def savePickle(trainset, testset, similarity, model_type, file_path):
+    print('saving Pickle to ' + file_path)
+    algo = getAlgorithm(trainset, similarity, model_type, True)
+    pickle.dump( algo.test(testset), open( file_path, "wb" ) )
