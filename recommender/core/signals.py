@@ -5,4 +5,5 @@ import core.utils as utils
 
 @receiver(post_save, sender=ArtistRating)
 def artist_activity_post_save(sender, **kwargs):
-    utils.recalculate()
+    print('Entered signal')
+    # utils.recalculate()

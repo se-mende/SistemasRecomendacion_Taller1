@@ -40,6 +40,8 @@ def loadPickles():
 
 def findPredictions(user_id, similarity, model_type):
 
+    loadPickles() # Loads pickles everytime you find predictions
+
     pickle_predictions = None
     if similarity == ArtistRating.SimilarityTechnique.COSINE and model_type == ArtistRating.RecommenderModelType.ITEM_ITEM:
         pickle_predictions = cosine_ii_pickle_predictions
@@ -157,6 +159,15 @@ def recalculate():
         x.join()
 
     loadPickles()
+
+def recalculate_serial():
+    print('recalculating everything serial')
+    trainset, testset = getTrainSet()
+
+    savePickle(trainset, testset, ArtistRating.SimilarityTechnique.COSINE, ArtistRating.RecommenderModelType.USER_USER, cosine_uu_pickle_file_path)
+    savePickle(trainset, testset, ArtistRating.SimilarityTechnique.COSINE, ArtistRating.RecommenderModelType.ITEM_ITEM, cosine_ii_pickle_file_path)
+    savePickle(trainset, testset, ArtistRating.SimilarityTechnique.PEARSON, ArtistRating.RecommenderModelType.USER_USER, pearson_uu_pickle_file_path)
+    savePickle(trainset, testset, ArtistRating.SimilarityTechnique.PEARSON, ArtistRating.RecommenderModelType.ITEM_ITEM, pearson_ii_pickle_file_path)
 
 def savePickle(trainset, testset, similarity, model_type, file_path):
     print('saving Pickle to ' + file_path)

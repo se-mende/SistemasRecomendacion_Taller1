@@ -13,6 +13,9 @@ class UserProfile(models.Model):
     country = models.CharField('Country', max_length=50, null=True, blank=True)
     registered_at = models.DateField(null=True)
 
+    def __str__(self):
+        return self.id
+
 
 class SongActivity(models.Model):
     user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='song_activities')
