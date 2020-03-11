@@ -54,17 +54,19 @@ def findPredictions(user_id, similarity, model_type):
 
 # Este puede cambiar por base de datos
 def getRatings():
-    ratings = pd.read_csv('../Data/preprocessed_user_item_rating.csv', sep = ',', header=0, names = [ 'userid', 'artist-name', 'rating' ] )
-    ratings = ratings.loc[:,['userid', 'artist-name','rating']]
+    # ratings = pd.read_csv('../Data/preprocessed_user_item_rating.csv', sep = ',', header=0, names = [ 'userid', 'artist-name', 'rating' ] )
+    # ratings = ratings.loc[:,['userid', 'artist-name','rating']]
 
-    return ratings
+    df = pd.DataFrame(list(ArtistRating.objects.all().values('user_profile_id', 'artist_name', 'rating'))) 
+
+    return df
 
 def getTrainSet():
     ratings = getRatings()
 
     reader = Reader( rating_scale = ( 0, 5 ) )
     #Se crea el dataset a partir del dataframe
-    surprise_dataset = Dataset.load_from_df( ratings[ [ 'userid', 'artist-name', 'rating' ] ], reader )
+    surprise_dataset = Dataset.load_from_df( ratings[ [ 'user_profile_id', 'artist_name', 'rating' ] ], reader )
     trainset, testset=  train_test_split(surprise_dataset, test_size=.2)
 
     return trainset, testset

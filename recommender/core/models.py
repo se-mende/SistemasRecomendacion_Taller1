@@ -29,6 +29,7 @@ class ArtistActivity(models.Model):
     def __str__(self):
         return 'User: %s | Artist name: %s' % (self.user_profile.pk, self.artist_name)
 
+
 class ArtistRating(models.Model):
 
     class SimilarityTechnique(models.TextChoices):
@@ -42,10 +43,13 @@ class ArtistRating(models.Model):
 
     user_profile = models.ForeignKey('UserProfile', on_delete=models.CASCADE, related_name='artist_ratings')
     artist_name = models.CharField('Artist name', max_length=100)
-    activity_count = models.IntegerField('Activity count')
+    # activity_count = models.IntegerField('Activity count')
     rating = models.FloatField()
-    similarity_technique = models.CharField(max_length=50, choices=SimilarityTechnique.choices)
-    model_type = models.CharField(max_length=50, choices=RecommenderModelType.choices)
+    # similarity_technique = models.CharField(max_length=50, choices=SimilarityTechnique.choices)
+    # model_type = models.CharField(max_length=50, choices=RecommenderModelType.choices)
+
+    def __str__(self):
+        return 'User: "%s" | Artist name: "%s" | Rating "%f"' % (self.user_profile.pk, self.artist_name, self.rating)
 
 
 class Neighbour(models.Model):
