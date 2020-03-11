@@ -17,16 +17,26 @@ pearson_ii_pickle_file_path = os.path.join(module_dir, './predictions/prediction
 cosine_uu_pickle_file_path = os.path.join(module_dir, './predictions/predictions_uu_cosine.p')
 pearson_uu_pickle_file_path = os.path.join(module_dir, './predictions/predictions_uu_pearson.p')
 
-cosine_ii_pickle_predictions = pickle.load( open( cosine_ii_pickle_file_path, "rb" ) )
-pearson_ii_pickle_predictions = pickle.load( open( pearson_ii_pickle_file_path, "rb" ) )
-
-cosine_uu_pickle_predictions = pickle.load( open( cosine_uu_pickle_file_path, "rb" ) )
-pearson_uu_pickle_predictions = pickle.load( open( pearson_uu_pickle_file_path, "rb" ) )
+cosine_ii_pickle_predictions = None
+pearson_ii_pickle_predictions = None
+cosine_uu_pickle_predictions = None
+pearson_uu_pickle_predictions = None
 
 algoCosine_useruser = None
 algoPearson_useruser = None
 algoCosine_itemitem = None
 algoPearson_itemitem = None
+
+def loadPickles():
+    global cosine_ii_pickle_predictions
+    global pearson_ii_pickle_predictions
+    global cosine_uu_pickle_predictions
+    global pearson_uu_pickle_predictions
+
+    cosine_ii_pickle_predictions = pickle.load( open( cosine_ii_pickle_file_path, "rb" ) )
+    pearson_ii_pickle_predictions = pickle.load( open( pearson_ii_pickle_file_path, "rb" ) )
+    cosine_uu_pickle_predictions = pickle.load( open( cosine_uu_pickle_file_path, "rb" ) )
+    pearson_uu_pickle_predictions = pickle.load( open( pearson_uu_pickle_file_path, "rb" ) )
 
 def findPredictions(user_id, similarity, model_type):
 
@@ -128,17 +138,29 @@ def recalculate():
     print('recalculating everything')
     trainset, testset = getTrainSet()
 
+    threads = []
     thread_uu_cosine = threading.Thread(target=savePickle,args=(trainset, testset, ArtistRating.SimilarityTechnique.COSINE, ArtistRating.RecommenderModelType.USER_USER, cosine_uu_pickle_file_path))
+    threads.append(thread_uu_cosine)
     thread_ii_cosine = threading.Thread(target=savePickle,args=(trainset, testset, ArtistRating.SimilarityTechnique.COSINE, ArtistRating.RecommenderModelType.ITEM_ITEM, cosine_ii_pickle_file_path))
+    threads.append(thread_ii_cosine)    
     thread_uu_pearson = threading.Thread(target=savePickle,args=(trainset, testset, ArtistRating.SimilarityTechnique.PEARSON, ArtistRating.RecommenderModelType.USER_USER, pearson_uu_pickle_file_path))
+    threads.append(thread_uu_pearson) 
     thread_ii_pearson = threading.Thread(target=savePickle,args=(trainset, testset, ArtistRating.SimilarityTechnique.PEARSON, ArtistRating.RecommenderModelType.ITEM_ITEM, pearson_ii_pickle_file_path))
+    threads.append(thread_ii_pearson) 
 
-    thread_uu_cosine.start()
-    thread_ii_cosine.start()
-    thread_uu_pearson.start()
-    thread_ii_pearson.start()
+    # Start all threads
+    for x in threads:
+        x.start()
+
+    # Wait for all of them to finish
+    for x in threads:
+        x.join()
+
+    loadPickles()
 
 def savePickle(trainset, testset, similarity, model_type, file_path):
     print('saving Pickle to ' + file_path)
     algo = getAlgorithm(trainset, similarity, model_type, True)
     pickle.dump( algo.test(testset), open( file_path, "wb" ) )
+
+loadPickles()
